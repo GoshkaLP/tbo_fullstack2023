@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+
+  db_tbo:
+    image: postgis/postgis
+    container_name: db_tbo
+    restart: unless-stopped
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    networks:
+      - tbo
+
+networks:
+  tbo:
