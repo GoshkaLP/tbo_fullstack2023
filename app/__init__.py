@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 
 import config
 from typing import Type
@@ -8,6 +9,7 @@ from app.views.node import node
 
 def create_app(app_config: Type[config.ProdConfig] | Type[config.DevConfig] | None = None) -> Flask | None:
     app = Flask(__name__, instance_relative_config=False)
+    CORS(app)
 
     if app_config is None:
         return None

@@ -1,34 +1,3 @@
-# from sqlalchemy import create_engine
-# from sqlalchemy.orm import sessionmaker
-#
-#
-# class Database:
-#     def __init__(self, user: str, password: str, host: str, port: int, database: str):
-#         self.user = user
-#         self.password = password
-#         self.host = host
-#         self.port = port
-#         self.database = database
-#
-#         self.engine = None
-#         self.session = None
-#
-#     def connect(self):
-#         url = f'postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}'
-#         self.engine = create_engine(url)
-#         session = sessionmaker(bind=self.engine)
-#         self.session = session()
-#
-#     def disconnect(self):
-#         if self.session is not None:
-#             self.session.close()
-#         self.session = None
-#         self.engine = None
-#
-#     def execute(self, query: str) -> list:
-#         result = self.session.execute(query)
-#         return result.fetchall()
-
 from sqlalchemy.orm import sessionmaker, load_only
 
 from contextlib import contextmanager
@@ -36,7 +5,8 @@ from contextlib import contextmanager
 import os
 from sqlalchemy import create_engine
 
-from app.models import Federals, LocationsFederals, LocationsGeometry
+from app.models import Federals, LocationsFederals, LocationsGeometry, LocationsInfo, LocationsSpending, \
+    LocationsSupervisory
 
 # Для отладки
 from dotenv import load_dotenv
@@ -77,7 +47,7 @@ def session_scope():
 
 def db_get_federals() -> list:
     with session_scope() as session:
-        res = session.query(Federals.fed_id, Federals.federal_subject).all()
+        res = session.query(Federals).all()
         return res
 
 
@@ -93,4 +63,22 @@ def db_get_locations(fed_ids: list | None = None) -> list:
             res = session.query(LocationsGeometry.obj_id, LocationsGeometry.name, LocationsGeometry.address,
                                 LocationsGeometry.federal_subject, LocationsGeometry.geometry.ST_X(),
                                 LocationsGeometry.geometry.ST_Y()).all()
+        return res
+
+
+def db_get_locations_info(obj_id: int) -> LocationsInfo:
+    with session_scope() as session:
+        res = session.query(LocationsInfo).filter(LocationsInfo.obj_id == obj_id).first()
+        return res
+
+
+def db_get_locations_spending(obj_id: int) -> LocationsSpending:
+    with session_scope() as session:
+        res = session.query(LocationsSpending).filter(LocationsSpending.obj_id == obj_id).first()
+        return res
+
+
+def db_get_locations_supervisory(obj_id: int) -> LocationsSupervisory:
+    with session_scope() as session:
+        res = session.query(LocationsSupervisory).filter(LocationsSupervisory.obj_id == obj_id).first()
         return res
