@@ -1,7 +1,8 @@
 from app.controllers.responses_controller import resp_ok
 from app.controllers.db_controller import db_get_federals, db_get_locations, db_get_locations_info, \
-    db_get_locations_spending, db_get_locations_supervisory
+    db_get_locations_spending, db_get_locations_supervisory, db_get_federals_locations
 
+from json import loads, dumps
 
 def get_federal_subjects() -> dict:
     resp = []
@@ -12,6 +13,14 @@ def get_federal_subjects() -> dict:
                 'fedId': row.fed_id,
                 'fedName': row.federal_subject
             })
+    return resp_ok(resp)
+
+
+def get_federal_subject_locations() -> dict:
+    resp = []
+    res = db_get_federals_locations()
+    if res:
+        resp = [row[0] for row in res]
     return resp_ok(resp)
 
 

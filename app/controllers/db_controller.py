@@ -1,12 +1,14 @@
 from sqlalchemy.orm import sessionmaker, load_only
 
+from shapely import wkb
+
 from contextlib import contextmanager
 
 import os
 from sqlalchemy import create_engine
 
 from app.models import Federals, LocationsFederals, LocationsGeometry, LocationsInfo, LocationsSpending, \
-    LocationsSupervisory
+    LocationsSupervisory, FederalsGeometry
 
 # Для отладки
 from dotenv import load_dotenv
@@ -82,3 +84,14 @@ def db_get_locations_supervisory(obj_id: int) -> LocationsSupervisory:
     with session_scope() as session:
         res = session.query(LocationsSupervisory).filter(LocationsSupervisory.obj_id == obj_id).first()
         return res
+
+
+def db_get_federals_locations() -> list:
+    with session_scope() as session:
+        res = session.execute("""SELECT jsonb_build_object(
+    'type',       'Feature',
+    'id',         f.fed_id,
+    'geometry',   ST_AsGeoJSON(f.geometry)::jsonb,
+    'properties', to_jsonb( f.* ) - 'fed_id' - 'geometry'
+    ) AS string FROM "FederalsGeometry" f """)
+        return res.all()

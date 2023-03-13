@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 
 from app.controllers.locations_controller import get_federal_subjects, get_locations, get_locations_info, \
-    get_locations_spending, get_locations_supervisory
+    get_locations_spending, get_locations_supervisory, get_federal_subject_locations
 
 locations = Blueprint('locations', __name__)
 
@@ -9,6 +9,11 @@ locations = Blueprint('locations', __name__)
 @locations.route('/api/federalSubjects', methods=['GET'])
 def api_get_federal_subjects():
     return get_federal_subjects()
+
+
+@locations.route('/api/federalSubjectsLocations', methods=['GET'])
+def api_get_federal_subjects_locations():
+    return get_federal_subject_locations()
 
 
 @locations.route('/api/locations', methods=['POST'])

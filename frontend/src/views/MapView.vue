@@ -14,7 +14,8 @@
           <b-button class="mt-2" variant="outline-warning" block @click="toggleModal">Toggle Me</b-button>
         </b-modal>
       </l-marker-cluster>
-<!--      <l-marker :lat-lng="markerLatLng"></l-marker>-->
+
+      <l-geo-json :geojson="getFederalLocations" :options="options"></l-geo-json>
     </l-map>
   </div>
 </template>
@@ -26,7 +27,7 @@
 // import HelloWorld from '@/components/HelloWorld.vue'
 
 import {Icon} from 'leaflet';
-import {LMap, LMarker, LTileLayer} from 'vue2-leaflet';
+import {LMap, LMarker, LTileLayer, LGeoJson} from 'vue2-leaflet';
 import {mapActions, mapGetters} from "vuex";
 
 
@@ -42,17 +43,19 @@ export default {
   components: {
     LMap,
     LTileLayer,
-    LMarker
+    LMarker,
+    LGeoJson,
   },
   data() {
     return {
       url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
       zoom: 5,
       center: [55.77741961547338, 37.61614862414406],
+      fillColor: "#e4ce7f",
     }
   },
   methods: {
-    ...mapActions(['fetchLocations']),
+    ...mapActions(['fetchLocations', 'fetchFederalSubjectsLocations']),
     showModal() {
       this.$refs['my-modal'].show()
     },
@@ -63,45 +66,67 @@ export default {
       // We pass the ID of the button that we want to return focus to
       // when the modal has hidden
       this.$refs['my-modal'].toggle('#toggle-btn')
+    },
+    getColor(value) {
+      return value > 20  ? '#636363' :
+          value > 10   ? '#969696' :
+              value > 5   ? '#BDBDBD' :
+                  value > 3   ? '#D9D9D9' :
+                                  '#F0F0F0';
     }
-  },
+    },
   created() {
     this.fetchLocations();
+    this.fetchFederalSubjectsLocations();
   },
   computed: {
-    ...mapGetters(['getLocations']),
-    getMarkers() {
-      let locations = this.getLocations;
-      return locations.map(function (element) {
-        return { 'coordinates': [element.latitude, element.longitude], 'id': element.objId};
-      });
+    ...mapGetters(['getLocations', 'getFederalLocations']),
+    options() {
+      return {
+        onEachFeature: this.onEachFeatureFunction
+      };
+    },
+    onEachFeatureFunction() {
+      return (feature, layer) => {
+        const objCount = feature.properties.obj_count;
+        layer.setStyle({
+          fillColor: this.getColor(objCount),
+          weight: 1,
+          opacity: 1,
+          color: 'black',
+          fillOpacity: 0.7
+        })
+      }
+    },
+
+
     }
-  }
 }
 </script>
 <style>
+
 .marker-cluster-small {
-  background-color: #b0add2 !important;
+  background-color: #006d2c !important;
   color: white !important;
 }
 .marker-cluster-small div {
-  background-color: #9e9ac8 !important;
+  background-color: #2ca25f !important;
   color: white !important;
 }
 .marker-cluster-medium {
-  background-color: #928ac1 !important;
+  background-color: #b39800 !important;
   color: white !important;
 }
 .marker-cluster-medium div {
-  background-color: #756bb1 !important;
-  color: white !important;
+  background-color: #FFD700 !important;
+  color: black !important;
 }
 .marker-cluster-large {
-  background-color: #6a31b4 !important;
+  background-color: #bd0026 !important;
   color: white !important;
 }
 .marker-cluster-large div {
-  background-color: #54278f !important;
+  background-color: #e31a1c !important;
   color: white !important;
 }
 

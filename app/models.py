@@ -87,3 +87,13 @@ class LocationsSupervisory(Base):
     contact_phone = Column(String)
     email = Column(String)
     registered_in_registry = Column(Boolean)
+
+
+class FederalsGeometry(Base):
+    __tablename__ = 'FederalsGeometry'
+    __table_args__ = {'extend_existing': True}
+
+    fed_id = Column(Integer, primary_key=True)
+    federal_subject = Column(String)
+    obj_count = Column(Integer)
+    geometry = Column(Geometry)
