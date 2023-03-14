@@ -24,9 +24,9 @@ def get_federal_subject_locations() -> dict:
     return resp_ok(resp)
 
 
-def get_locations(form: dict | None = None) -> dict:
+def get_locations() -> dict:
     resp = []
-    res = db_get_locations(form.get('fedIds') if form else None)
+    res = db_get_locations()
     if res:
         for row in res:
             resp.append({
@@ -34,8 +34,9 @@ def get_locations(form: dict | None = None) -> dict:
                 'name': row[1],
                 'address': row[2],
                 'federalSubject': row[3],
-                'longitude': row[4],
-                'latitude': row[5]
+                'fedId': row[4],
+                'longitude': row[5],
+                'latitude': row[6]
             })
     return resp_ok(resp)
 

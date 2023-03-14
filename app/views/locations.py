@@ -16,9 +16,9 @@ def api_get_federal_subjects_locations():
     return get_federal_subject_locations()
 
 
-@locations.route('/api/locations', methods=['POST'])
+@locations.route('/api/locations', methods=['GET'])
 def api_get_locations():
-    return get_locations(request.json)
+    return get_locations()
 
 
 @locations.route('/api/locationsInfo/<int:obj_id>', methods=['GET'])

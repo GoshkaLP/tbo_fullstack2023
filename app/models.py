@@ -30,7 +30,8 @@ class LocationsGeometry(Base):
     name = Column(String)
     federal_subject = Column(String)
     address = Column(String)
-    geometry = Column(Geometry('POINT'))
+    fed_id = Column(Integer)
+    geometry = Column(Geometry)
 
 
 class LocationsInfo(Base):

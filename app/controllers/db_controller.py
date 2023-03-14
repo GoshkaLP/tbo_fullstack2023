@@ -53,18 +53,11 @@ def db_get_federals() -> list:
         return res
 
 
-def db_get_locations(fed_ids: list | None = None) -> list:
+def db_get_locations() -> list:
     with session_scope() as session:
-        if fed_ids:
-            res = session.query(LocationsGeometry.obj_id, LocationsGeometry.name, LocationsGeometry.address,
-                                LocationsGeometry.federal_subject, LocationsGeometry.geometry.ST_X(),
-                                LocationsGeometry.geometry.ST_Y()).join(LocationsFederals, LocationsGeometry.obj_id
-                                                                        == LocationsFederals.obj_id).\
-                filter(LocationsFederals.fed_id.in_(fed_ids)).all()
-        else:
-            res = session.query(LocationsGeometry.obj_id, LocationsGeometry.name, LocationsGeometry.address,
-                                LocationsGeometry.federal_subject, LocationsGeometry.geometry.ST_X(),
-                                LocationsGeometry.geometry.ST_Y()).all()
+        res = session.query(LocationsGeometry.obj_id, LocationsGeometry.name, LocationsGeometry.address,
+                            LocationsGeometry.federal_subject, LocationsGeometry.fed_id, LocationsGeometry.geometry.ST_X(),
+                            LocationsGeometry.geometry.ST_Y()).all()
         return res
 
 

@@ -16,6 +16,7 @@
     "leaflet.markercluster": "^1.5.3",
     "vue": "^2.7.14",
     "vue-choropleth": "^0.3.1",
+    "vue-multiselect": "^2.1.7",
     "vue-router": "^3.5.1",
     "vue2-leaflet": "^2.7.1",
     "vue2-leaflet-markercluster": "^3.1.0",
