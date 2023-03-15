@@ -5,9 +5,6 @@
   </div>
 </template>
 
-<style>
-
-</style>
 <script>
   import NavbarMain from "@/components/NavbarMain.vue";
   export default {
@@ -28,3 +25,7 @@
   }
 
 </script>
+
+<style>
+
+</style>

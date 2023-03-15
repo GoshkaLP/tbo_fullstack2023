@@ -10,7 +10,11 @@ export default new Vuex.Store({
   state: {
     locations: [],
     federalLocations: [],
-    federalsInfo: []
+    federalsInfo: [],
+    locationInfo: {
+      isLoaded: false,
+      data: []
+    }
   },
   getters: {
     getLocations(state) {
@@ -21,6 +25,12 @@ export default new Vuex.Store({
     },
     getFederalsInfo(state) {
       return state.federalsInfo;
+    },
+    getLocationInfo(state) {
+      return state.locationInfo.data;
+    },
+    getLocationInfoStatus(state) {
+      return state.locationInfo.isLoaded;
     }
   },
   mutations: {
@@ -32,6 +42,12 @@ export default new Vuex.Store({
     },
     setFederalsInfo(state, payload) {
       state.federalsInfo = payload;
+    },
+    setLocationInfo(state, payload) {
+      state.locationInfo.data = payload;
+    },
+    setLocationInfoStatus(state, payload) {
+      state.locationInfo.isLoaded = payload;
     }
   },
   actions: {
@@ -46,6 +62,12 @@ export default new Vuex.Store({
     async fetchFederalsInfo(state) {
       const response =  await axios.get(url + "/api/federalSubjects")
       state.commit("setFederalsInfo", response.data.data)
+    },
+    async fetchLocationInfo(state, objId) {
+      state.commit('setLocationInfoStatus', false);
+      const response = await axios.get(url + '/api/locationsInfo/' + objId)
+      state.commit("setLocationInfo", response.data.data)
+      state.commit("setLocationInfoStatus", true);
     }
   },
   modules: {
