@@ -7,6 +7,9 @@ Base = declarative_base()
 
 
 class Federals(Base):
+    """
+    Модель таблицы Federals
+    """
     __tablename__ = 'Federals'
     __table_args__ = {'extend_existing': True}
 
@@ -15,6 +18,9 @@ class Federals(Base):
 
 
 class LocationsFederals(Base):
+    """
+    Модель таблицы LocationsFederals
+    """
     __tablename__ = 'LocationsFederals'
     __table_args__ = {'extend_existing': True}
 
@@ -23,6 +29,9 @@ class LocationsFederals(Base):
 
 
 class LocationsGeometry(Base):
+    """
+    Модель таблицы LocationsGeometry
+    """
     __tablename__ = 'LocationsGeometry'
     __table_args__ = {'extend_existing': True}
 
@@ -34,6 +43,9 @@ class LocationsGeometry(Base):
 
 
 class LocationsInfo(Base):
+    """
+    Модель таблицы LocationsInfo
+    """
     __tablename__ = 'LocationsInfo'
     __table_args__ = {'extend_existing': True}
 
@@ -57,6 +69,9 @@ class LocationsInfo(Base):
 
 
 class LocationsSpending(Base):
+    """
+    Модель таблицы LocationsSpending
+    """
     __tablename__ = 'LocationsSpending'
     __table_args__ = {'extend_existing': True}
 
@@ -76,6 +91,9 @@ class LocationsSpending(Base):
 
 
 class LocationsSupervisory(Base):
+    """
+    Модель таблицы LocationsSupervisory
+    """
     __tablename__ = 'LocationsSupervisory'
     __table_args__ = {'extend_existing': True}
 
@@ -92,6 +110,9 @@ class LocationsSupervisory(Base):
 
 
 class FederalsGeometry(Base):
+    """
+    Модель таблицы FederalsGeometry
+    """
     __tablename__ = 'FederalsGeometry'
     __table_args__ = {'extend_existing': True}
 
@@ -102,6 +123,9 @@ class FederalsGeometry(Base):
 
 
 class FundingSportTypes(Base):
+    """
+    Модель таблицы FundingSportTypes
+    """
     __tablename__ = 'FundingSportTypes'
     __table_args__ = {'extend_existing': True}
 
@@ -112,6 +136,9 @@ class FundingSportTypes(Base):
 
 
 class ConstructionSportTypes(Base):
+    """
+    Модель таблицы ConstructionSportTypes
+    """
     __tablename__ = 'ConstructionSportTypes'
     __table_args__ = {'extend_existing': True}
 

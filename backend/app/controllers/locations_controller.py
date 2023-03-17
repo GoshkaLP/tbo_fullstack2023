@@ -12,6 +12,9 @@ funding = {
 
 
 def get_federal_subjects() -> dict:
+    """
+    Фукнкция для преобразования в Json информации о субъектах РФ
+    """
     resp = []
     res = db_get_federals()
     if res:
@@ -24,6 +27,9 @@ def get_federal_subjects() -> dict:
 
 
 def get_federal_subject_locations() -> dict:
+    """
+    Фукнкция для преобразования в Json информации о координатах субъектов РФ
+    """
     resp = []
     res = db_get_federals_locations()
     if res:
@@ -32,6 +38,9 @@ def get_federal_subject_locations() -> dict:
 
 
 def get_hexagons_locations() -> dict:
+    """
+    Фукнкция для преобразования в Json информации о координатах гексагонов спортивных космлексов, которые строились
+    """
     resp = []
     res = db_get_hexagon_locations()
     if res:
@@ -40,6 +49,9 @@ def get_hexagons_locations() -> dict:
 
 
 def get_locations() -> dict:
+    """
+    Фукнкция для преобразования в Json информации о координатах спортивных комплексов
+    """
     resp = []
     res = db_get_locations()
     if res:
@@ -56,6 +68,9 @@ def get_locations() -> dict:
 
 
 def get_location(obj_id: int) -> dict:
+    """
+    Фукнкция для преобразования в Json информации о конкретном спортивном комплексе
+    """
     resp = {}
     res = db_get_location(obj_id)
     if res:
@@ -105,6 +120,10 @@ def get_location(obj_id: int) -> dict:
 
 
 def get_funding_sport_types() -> dict:
+    """
+    Фукнкция для преобразования в Json информации необходимой для построения графика распределения средств по
+    типам спортивных комплексов
+    """
     resp = {}
     res = db_get_funding_sport_types()
     if res:
@@ -126,6 +145,9 @@ def get_funding_sport_types() -> dict:
 
 
 def get_construction_sport_types() -> dict:
+    """
+    Фукнкция для преобразования в Json информации необходимой для построения графика распределения выделенного бюджета по годам
+    """
     resp = {}
     res = db_get_construction_sport_types()
     if res:

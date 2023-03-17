@@ -34,7 +34,6 @@ Session = sessionmaker(SQL_ENGINE, expire_on_commit=False)
 
 @contextmanager
 def session_scope():
-    """Provide a transactional scope around a series of operations."""
     session = Session()
     try:
         yield session
@@ -47,12 +46,18 @@ def session_scope():
 
 
 def db_get_federals() -> list:
+    """
+    Функция для получения списка субъектов РФ из БД
+    """
     with session_scope() as session:
         res = session.query(Federals).all()
         return res
 
 
 def db_get_locations() -> list:
+    """
+    Функция для получения координат сопртивных объектов в виде широты и долготы
+    """
     with session_scope() as session:
         res = session.query(LocationsGeometry.obj_id, LocationsGeometry.address,
                             LocationsGeometry.federal_subject, LocationsGeometry.fed_id, LocationsGeometry.geometry.ST_X(),
@@ -61,6 +66,9 @@ def db_get_locations() -> list:
 
 
 def db_get_location(obj_id: int):
+    """
+    Функция для получения информации о конкретном объекте
+    """
     with session_scope() as session:
         res = session.query(LocationsInfo, LocationsSpending, LocationsSupervisory). \
             join(LocationsSpending, LocationsInfo.obj_id == LocationsSpending.obj_id).\
@@ -70,6 +78,10 @@ def db_get_location(obj_id: int):
 
 
 def db_get_federals_locations() -> list:
+    """
+    Функция для получения GeoJson с информацией о полигонах субъектов РФ
+    Делается прямой запрос, так как это эффективнее в данном случае, чем через ORM
+    """
     with session_scope() as session:
         res = session.execute("""SELECT jsonb_build_object(
     'type',       'Feature',
@@ -81,6 +93,10 @@ def db_get_federals_locations() -> list:
 
 
 def db_get_hexagon_locations() -> list:
+    """
+    Функция для получения GeoJson с информацией о гексагонов спортитвных объектов, которые строились
+    Делается прямой запрос, так как это эффективнее в данном случае, чем через ORM
+    """
     with session_scope() as session:
         res = session.execute("""SELECT jsonb_build_object(
     'type',       'Feature',
@@ -93,6 +109,9 @@ def db_get_hexagon_locations() -> list:
 
 
 def db_get_funding_sport_types() -> list:
+    """
+    Функция для получения информации для графика распределения средств по типам спортивных комплексов
+    """
     with session_scope() as session:
         res = session.query(FundingSportTypes.sports_complex_type, FundingSportTypes.funding_type,
                             func.sum(FundingSportTypes.count)).group_by(FundingSportTypes.sports_complex_type,
@@ -101,6 +120,9 @@ def db_get_funding_sport_types() -> list:
 
 
 def db_get_construction_sport_types() -> list:
+    """
+    Функция для получения информации для графика распределения выделенного бюджета по годам
+    """
     with session_scope() as session:
         res = session.query(ConstructionSportTypes).all()
         return res

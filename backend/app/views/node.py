@@ -8,6 +8,9 @@ node = Blueprint('node', __name__)
 
 @node.route('/api/version', methods=['GET'])
 def api_version():
+    """
+    Endpoint для получения текущей версии бэкенда
+    """
     resp = {
         'version': '2.0.0',
         'server_status': 'working'

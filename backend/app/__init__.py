@@ -8,6 +8,9 @@ from app.views.node import node
 
 
 def create_app(app_config: Type[config.ProdConfig] | Type[config.DevConfig] | None = None) -> Flask | None:
+    """
+    Функция создания приложения на Flask
+    """
     app = Flask(__name__, instance_relative_config=False)
     CORS(app)
 
