@@ -57,7 +57,7 @@
           v-show="fedChecked"
           position="bottomright">
         <b-card sub-title="Аналитика регионов">
-          <p>Количество сопрт-объектов</p>
+          <p>Количество спорт-объектов</p>
           <MapLegendElement color="#636363">>20</MapLegendElement>
           <MapLegendElement color="#969696">11-20</MapLegendElement>
           <MapLegendElement color="#BDBDBD">6-10</MapLegendElement>
