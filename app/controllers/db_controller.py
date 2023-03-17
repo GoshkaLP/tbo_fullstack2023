@@ -1,4 +1,5 @@
-from sqlalchemy.orm import sessionmaker, load_only
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import func, desc, literal_column
 
 from shapely import wkb
 
@@ -8,7 +9,7 @@ import os
 from sqlalchemy import create_engine
 
 from app.models import Federals, LocationsFederals, LocationsGeometry, LocationsInfo, LocationsSpending, \
-    LocationsSupervisory, FederalsGeometry
+    LocationsSupervisory, FundingSportTypes
 
 # Для отладки
 from dotenv import load_dotenv
@@ -61,21 +62,13 @@ def db_get_locations() -> list:
         return res
 
 
-def db_get_locations_info(obj_id: int) -> LocationsInfo:
+def db_get_location(obj_id: int):
     with session_scope() as session:
-        res = session.query(LocationsInfo).filter(LocationsInfo.obj_id == obj_id).first()
-        return res
-
-
-def db_get_locations_spending(obj_id: int) -> LocationsSpending:
-    with session_scope() as session:
-        res = session.query(LocationsSpending).filter(LocationsSpending.obj_id == obj_id).first()
-        return res
-
-
-def db_get_locations_supervisory(obj_id: int) -> LocationsSupervisory:
-    with session_scope() as session:
-        res = session.query(LocationsSupervisory).filter(LocationsSupervisory.obj_id == obj_id).first()
+        res = session.query(LocationsInfo, LocationsSpending, LocationsSupervisory). \
+            join(LocationsSpending, LocationsInfo.obj_id == LocationsSpending.obj_id).\
+            join(LocationsSupervisory, LocationsInfo.obj_id == LocationsSupervisory.obj_id).\
+            filter(LocationsInfo.obj_id == obj_id).first()
+        # res = session.query(LocationsInfo).filter(LocationsInfo.obj_id == obj_id).first()
         return res
 
 
@@ -88,3 +81,24 @@ def db_get_federals_locations() -> list:
     'properties', to_jsonb( f.* ) - 'fed_id' - 'geometry'
     ) AS string FROM "FederalsGeometry" f """)
         return res.all()
+
+
+def db_get_hexagon_locations() -> list:
+    with session_scope() as session:
+        res = session.execute("""SELECT jsonb_build_object(
+    'type',       'Feature',
+    'id',         l.obj_id,
+    'geometry',   ST_AsGeoJSON(l.geometry)::jsonb,
+    'properties', to_jsonb( l.* ) - 'obj_id' - 'geometry' - 'index_right'
+    ) AS json
+    FROM "LocationsHexagons" l;""")
+        return res.all()
+
+
+def db_get_funding_sport_types() -> list:
+    with session_scope() as session:
+        res = session.query(FundingSportTypes.sports_complex_type, FundingSportTypes.funding_type,
+                            func.sum(FundingSportTypes.count)).group_by(FundingSportTypes.sports_complex_type,
+                                                                        FundingSportTypes.funding_type).all()
+        return res
+

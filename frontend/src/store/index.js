@@ -10,11 +10,17 @@ export default new Vuex.Store({
   state: {
     locations: [],
     federalLocations: [],
+    hexagonLocations: [],
     federalsInfo: [],
     locationInfo: {
       isLoaded: false,
-      data: []
-    }
+      data: {
+        info: [],
+        spending: [],
+        supervisory: []
+      }
+    },
+    fundingSportTypes: {}
   },
   getters: {
     getLocations(state) {
@@ -22,6 +28,9 @@ export default new Vuex.Store({
     },
     getFederalLocations(state) {
       return state.federalLocations;
+    },
+    getHexagonLocations(state) {
+      return state.hexagonLocations;
     },
     getFederalsInfo(state) {
       return state.federalsInfo;
@@ -31,6 +40,9 @@ export default new Vuex.Store({
     },
     getLocationInfoStatus(state) {
       return state.locationInfo.isLoaded;
+    },
+    getFundingSportTypes(state) {
+      return state.fundingSportTypes;
     }
   },
   mutations: {
@@ -40,14 +52,22 @@ export default new Vuex.Store({
     setFederalLocations(state, payload) {
       state.federalLocations = payload;
     },
+    setHexagonLocations(state, payload) {
+      state.hexagonLocations = payload;
+    },
     setFederalsInfo(state, payload) {
       state.federalsInfo = payload;
     },
     setLocationInfo(state, payload) {
-      state.locationInfo.data = payload;
+      state.locationInfo.data.info = payload.info;
+      state.locationInfo.data.spending = payload.spending;
+      state.locationInfo.data.supervisory = payload.supervisory;
     },
     setLocationInfoStatus(state, payload) {
       state.locationInfo.isLoaded = payload;
+    },
+    setFundingSportTypes(state, payload) {
+      state.fundingSportTypes = payload
     }
   },
   actions: {
@@ -59,16 +79,25 @@ export default new Vuex.Store({
       const response = await axios.get(url + "/api/federalSubjectsLocations")
       state.commit("setFederalLocations", response.data.data);
     },
+    async fetchHexagonLocations(state) {
+      const response = await axios.get(url + "/api/hexagonLocations")
+      state.commit("setHexagonLocations", response.data.data);
+    },
     async fetchFederalsInfo(state) {
       const response =  await axios.get(url + "/api/federalSubjects")
       state.commit("setFederalsInfo", response.data.data)
     },
     async fetchLocationInfo(state, objId) {
       state.commit('setLocationInfoStatus', false);
-      const response = await axios.get(url + '/api/locationsInfo/' + objId)
+      const response = await axios.get(url + '/api/location/' + objId)
       state.commit("setLocationInfo", response.data.data)
       state.commit("setLocationInfoStatus", true);
+    },
+    async fetchFundingSportTypes(state) {
+      const response = await axios.get(url + '/api/fundingSportTypes')
+      state.commit("setFundingSportTypes", response.data.data)
     }
+
   },
   modules: {
   }

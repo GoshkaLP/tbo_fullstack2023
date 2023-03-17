@@ -1,27 +1,53 @@
 <template>
-  <div >
-    <l-map  style="height: calc(100vh - 56px)" :zoom="zoom" :center="center" :options="{attributionControl: false}">
+  <div>
+    <l-map style="height: calc(100vh - 56px)" :zoom="mapZoom" :center="mapCenter" :options="{attributionControl: false}">
       <l-control class="mapControl">
         <b-card sub-title="Управление картой">
 
+          <b-form-group
+              label-cols-sm="8"
+              label-align-sm="left"
+              label="Слой отображения субъектов РФ"
+              label-for="fedCheckbox">
             <b-form-checkbox
-                id="checkbox-1"
+                id="fedCheckbox"
                 v-model="fedChecked">
-              <p class="fedCheckbox">Слой отображения субъектов РФ</p>
             </b-form-checkbox>
+          </b-form-group>
 
-            <multiselect
-                v-model="fedSelected"
-                :options="getFederalsInfo"
-                track-by="fedName"
-                label="fedName"
-                :close-on-select="false"
-                :multiple="true"
-                placeholder="Выберите субъект"
-                selectLabel="Нажмите, чтобы выбрать"
-                deselectLabel="Нажмите, чтобы убрать"
-                selectedLabel="Выбрано">
-            </multiselect>
+          <multiselect
+              :disabled="hexagonChecked"
+              v-model="fedSelected"
+              :options="getFederalsInfo"
+              track-by="fedName"
+              label="fedName"
+              :close-on-select="false"
+              :multiple="true"
+              placeholder="Выберите субъект"
+              selectLabel="Нажмите, чтобы выбрать"
+              deselectLabel="Нажмите, чтобы убрать"
+              selectedLabel="Выбрано">
+          </multiselect>
+
+          <b-form-group
+              label-cols-sm="8"
+              label-align-sm="left"
+              label="Слой отображения строительства объектов"
+              label-for="hexagonCheckbox">
+            <b-form-checkbox
+                id="hexagonCheckbox"
+                v-model="hexagonChecked">
+            </b-form-checkbox>
+          </b-form-group>
+
+
+          <b-form-group
+              label-cols-sm="4"
+              label-align-sm="left"
+              label="Текст про ползунок"
+              label-for="hexagonYear">
+            <b-form-input id="hexagonYear" type="range" min="1997" max="2015" v-model="hexagonDateRange" :disabled="!hexagonChecked"></b-form-input>
+          </b-form-group>
 
         </b-card>
       </l-control>
@@ -29,7 +55,7 @@
       <l-control
           v-show="fedChecked"
           position="bottomright">
-        <b-card sub-title="Легенда карты">
+        <b-card sub-title="Легенда субъектов">
           <p>Количество объектов</p>
           <MapLegendElement color="#636363">>20</MapLegendElement>
           <MapLegendElement color="#969696">11-20</MapLegendElement>
@@ -43,7 +69,12 @@
                  v-show="showLocationInfo"
                  position="topleft">
 
-        <b-card sub-title="Здесь название комплекса)">
+        <b-card :sub-title="getLocationInfo.info.name">
+            <button type="button" class="close"
+                    @click="hideMarker"
+                    data-dismiss="modal" style="position: absolute; right: 10px;">×
+            </button>
+
           <div class="text-center">
             <b-spinner v-if="!getLocationInfoStatus"></b-spinner>
           </div>
@@ -51,58 +82,94 @@
             <b-tabs>
               <b-tab title="Общая информация" active>
                 <b-card-body sub-title="Адрес">
-                  <p>{{getLocationInfo.address}}</p>
+                  <p>{{getLocationInfo.info.address}}</p>
                 </b-card-body>
                 <b-card-body sub-title="Описание">
-                  <p>{{getLocationInfo.description}}</p>
+                  <p>{{getLocationInfo.info.description}}</p>
                 </b-card-body>
                 <b-card-body sub-title="МО">
-                  <p>{{getLocationInfo.municipalityEntity}}</p>
+                  <p>{{getLocationInfo.info.municipalityEntity}}</p>
                 </b-card-body>
                 <b-card-body sub-title="Тип спортивного комплекса">
-                  <p>{{getLocationInfo.sportsComplexType}}</p>
+                  <p>{{getLocationInfo.info.sportsComplexType}}</p>
                 </b-card-body>
                 <b-card-body sub-title="Типы спорта">
-                  <p>{{getLocationInfo.sportsTypes}}</p>
+                  <p>{{getLocationInfo.info.sportsTypes}}</p>
                 </b-card-body>
                 <b-card-body sub-title="Вебсайт">
-                  <p>{{getLocationInfo.websiteUrl}}</p>
+                  <p>{{getLocationInfo.info.websiteUrl}}</p>
                 </b-card-body>
                 <b-card-body sub-title="Время работы">
-                  <p>{{getLocationInfo.workHoursWeekdays}}</p>
-                  <p>{{getLocationInfo.saturdayWorkingHours}}</p>
-                  <p>{{getLocationInfo.sundayWorkingHours}}</p>
+                  <p>{{getLocationInfo.info.workHoursWeekdays}}</p>
+                  <p>{{getLocationInfo.info.saturdayWorkingHours}}</p>
+                  <p>{{getLocationInfo.info.sundayWorkingHours}}</p>
                 </b-card-body>
               </b-tab>
               <b-tab title="Траты">
-                <!-- Content for Tab 2 -->
+                <b-card-body sub-title="Действия с объектом">
+                  <p>{{getLocationInfo.spending.objectActions}}</p>
+                </b-card-body>
+                <b-card-body sub-title="Даты проведения действий">
+                  <p>{{getLocationInfo.spending.constructionStartDate}} - {{getLocationInfo.spending.constructionEndDate}}</p>
+                </b-card-body>
+                <b-card-body sub-title="Траты из разных источников">
+                  <div id="chart">
+                    <apexchart type="pie" :options="fundingChartOptions" :series="getFundingChartSeries"></apexchart>
+                  </div>
+                </b-card-body>
+
               </b-tab>
               <b-tab title="Управляющий">
-                <!-- Content for Tab 3 -->
+                <b-card-body sub-title="Курирующий орган">
+                  <p>{{getLocationInfo.supervisory.supervisoryAuthority}}</p>
+                </b-card-body>
+                <b-card-body sub-title="Телефон курирующего органа">
+                  <p>{{getLocationInfo.supervisory.supervisoryAuthorityPhone}}</p>
+                </b-card-body>
+                <b-card-body sub-title="Контакткный телефон объекта">
+                  <p>{{getLocationInfo.supervisory.contactPhone}}</p>
+                </b-card-body>
+                <b-card-body sub-title="Электронная почта объекта">
+                  <p>{{getLocationInfo.supervisory.email}}</p>
+                </b-card-body>
               </b-tab>
             </b-tabs>
           </div>
-
-<!--          <p v-if="getLocationInfoStatus" class="my-4">{{getLocationInfo}}</p>-->
         </b-card>
       </l-control>
 
-      <l-tile-layer :url="url" ></l-tile-layer>
+      <l-control
+      position="bottomleft">
+        <b-card :sub-title="`Выбранный год: ${hexagonDateRange}`"
+                v-show="hexagonChecked">
+          <MapLegendElement color="#F9F0FB">футбольное поле</MapLegendElement>
+          <MapLegendElement color="#F0E1F6">многофункциональный спортивный комплекс</MapLegendElement>
+          <MapLegendElement color="#E6CCE3">стадион</MapLegendElement>
+          <MapLegendElement color="#D9B3D9">арена ледовая</MapLegendElement>
+          <MapLegendElement color="#C99DD3">канал гребной</MapLegendElement>
+          <MapLegendElement color="#B58FCB">зал спортивный</MapLegendElement>
+          <MapLegendElement color="#A17DB5">бассейн</MapLegendElement>
+          <MapLegendElement color="#906CA9">площадка спортивная</MapLegendElement>
+          <MapLegendElement color="#7E5D9B">комплекс биатлонно-лыжный</MapLegendElement>
+          <MapLegendElement color="#6A4E8C">манеж легкоатлетический</MapLegendElement>
+          <MapLegendElement color="#583D7A">трасса спортивная</MapLegendElement>
+          <MapLegendElement color="#472C62">комплекс лыжный</MapLegendElement>
+          <MapLegendElement color="#3F1E4F">комплекс горнолыжный</MapLegendElement>
+        </b-card>
+      </l-control>
+
+      <l-tile-layer :url="mapUrl"></l-tile-layer>
 
       <l-marker-cluster>
-        <l-marker @click="showMarker(point.objId)" v-for="point in markers" :key="point.objId" :lat-lng="[point.latitude, point.longitude]">
+        <l-marker
+            :visible="!hexagonChecked"
+            @click="showMarker(point.objId)" v-for="point in markers" :key="point.objId" :lat-lng="[point.latitude, point.longitude]">
         </l-marker>
-
-<!--        <b-modal ref="my-modal" title="BootstrapVue">-->
-<!--          <div class="text-center">-->
-<!--            <b-spinner v-if="!getLocationInfoStatus"></b-spinner>-->
-<!--          </div>-->
-<!--          <p v-if="getLocationInfoStatus" class="my-4">{{getLocationInfo}}</p>-->
-<!--        </b-modal>-->
-
       </l-marker-cluster>
 
-      <l-geo-json :visible="fedChecked" :geojson="fedLayers" :options="layerOptions"></l-geo-json>
+      <l-geo-json :visible="fedChecked" :geojson="fedLayers" :options="federalLayerOptions"></l-geo-json>
+      <l-geo-json :visible="hexagonChecked" :geojson="hexagonLayers" :options="hexagonLayerOptions"></l-geo-json>
+
     </l-map>
   </div>
 </template>
@@ -116,6 +183,8 @@ import {LMap, LMarker, LTileLayer, LGeoJson, LControl} from 'vue2-leaflet';
 import {mapActions, mapGetters} from "vuex";
 import Multiselect from "vue-multiselect";
 import MapLegendElement from "@/components/MapLegendElement.vue";
+
+import VueApexCharts from "vue-apexcharts";
 
 
 delete Icon.Default.prototype._getIconUrl;
@@ -135,73 +204,119 @@ export default {
     LMarker,
     LGeoJson,
     LControl,
-    Multiselect
+    Multiselect,
+    apexchart: VueApexCharts
   },
   data() {
     return {
-      url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-      zoom: 5,
-      center: [55.77741961547338, 37.61614862414406],
-      fillColor: "#e4ce7f",
+      mapUrl: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+      mapZoom: 5,
+      mapCenter: [55.77741961547338, 37.61614862414406],
       markers: [],
       fedLayers: [],
       fedChecked: false,
       fedSelected: [],
-      showLocationInfo: false
+      showLocationInfo: false,
+      hexagonLayers: [],
+      hexagonDateRange: 1997,
+      hexagonChecked: false,
+      fundingChartOptions: {
+        chart: {
+          width: 200,
+          type: 'pie',
+        },
+        labels: ['Фед. бюджет',
+          'Субъект федерации',
+          'МО',
+          'Внебюджетные'],
+
+      },
     }
   },
   methods: {
-    ...mapActions(['fetchLocations', 'fetchFederalSubjectsLocations', 'fetchFederalsInfo', 'fetchLocationInfo']),
+    ...mapActions(['fetchLocations', 'fetchFederalSubjectsLocations', 'fetchFederalsInfo', 'fetchLocationInfo', 'fetchHexagonLocations']),
     showMarker(objId) {
       this.fetchLocationInfo(objId)
-      this.showLocationInfo = !this.showLocationInfo;
-      // this.$refs['my-modal'].show()
+      this.showLocationInfo = true;
     },
-    // hideModal() {
-    //   this.$refs['my-modal'].hide()
-    // },
-    // toggleModal() {
-    //   // We pass the ID of the button that we want to return focus to
-    //   // when the modal has hidden
-    //   this.$refs['my-modal'].toggle('#toggle-btn')
-    // },
-    getColor(value) {
+    hideMarker() {
+      this.showLocationInfo = false;
+    },
+    getSubjectColor(value) {
       return value > 20 ? '#636363' :
           value > 10 ? '#969696' :
-              value > 5 ? '#BDBDBD' :
-                  value > 3 ? '#D9D9D9' :
+          value > 5 ? '#BDBDBD' :
+          value > 3 ? '#D9D9D9' :
                       '#F0F0F0';
+    },
+    getHexagonColor(value) {
+      return value === 'футбольное поле ' ? '#F9F0FB' :
+            value === 'многофункциональный спортивный комплекс' ? '#F0E1F6' :
+            value === 'стадион' ? '#E6CCE3' :
+            value === 'арена ледовая' ? '#D9B3D9' :
+            value === 'канал гребной' ? '#C99DD3' :
+            value === 'зал спортивный' ? '#B58FCB' :
+            value === 'бассейн' ? '#A17DB5' :
+            value === 'площадка спортивная' ? '#906CA9' :
+            value === 'комплекс биатлонно-лыжный' ? '#7E5D9B' :
+            value === 'манеж легкоатлетический' ? '#6A4E8C' :
+            value === 'трасса спортивная' ? '#583D7A' :
+            value === 'комплекс лыжный' ? '#472C62' :
+            '#3F1E4F';
     }
   },
   created() {
     this.fetchLocations();
     this.fetchFederalSubjectsLocations();
     this.fetchFederalsInfo()
+    this.fetchHexagonLocations()
   },
   computed: {
-    ...mapGetters(['getLocations', 'getFederalLocations', 'getFederalsInfo', 'getLocationInfo', 'getLocationInfoStatus']),
-    layerOptions() {
+    ...mapGetters(['getLocations', 'getFederalLocations', 'getFederalsInfo', 'getLocationInfo', 'getLocationInfoStatus',
+    'getHexagonLocations']),
+    federalLayerOptions() {
       return {
-        onEachFeature: this.onEachFeatureFunction
+        onEachFeature: this.onEachFeatureFederal
       };
     },
-    onEachFeatureFunction() {
+    hexagonLayerOptions() {
+      return {
+        onEachFeature: this.onEachFeatureHexagon
+      }
+    },
+    onEachFeatureFederal() {
       return (feature, layer) => {
         const objCount = feature.properties.obj_count;
         layer.setStyle({
-          fillColor: this.getColor(objCount),
+          fillColor: this.getSubjectColor(objCount),
           weight: 1,
           opacity: 1,
           color: 'black',
           fillOpacity: 0.7
         })
       }
+    },
+    onEachFeatureHexagon() {
+      return (feature, layer) => {
+        const objSportType = feature.properties.sports_complex_type;
+        layer.setStyle({
+          fillColor: this.getHexagonColor(objSportType),
+          weight: 2,
+          opacity: 1,
+          color: 'black',
+          fillOpacity: 0.7
+        })
+      }
+    },
+    getFundingChartSeries() {
+      return [this.getLocationInfo.spending.federalBudgetFunding,
+        this.getLocationInfo.spending.regionalBudgetFunding, this.getLocationInfo.spending.localBudgetFunding,
+        this.getLocationInfo.spending.offBudgetFunding];
     }
   },
   mounted() {
     this.$nextTick(() => {
-      const controlEl = this.$el.querySelector('.mapControl');
-      L.DomEvent.disableScrollPropagation(controlEl);
+      L.DomEvent.disableScrollPropagation(this.$el.querySelector('.mapControl'));
       L.DomEvent.disableScrollPropagation(this.$el.querySelector('.markerInfo'));
     });
   },
@@ -221,6 +336,14 @@ export default {
     },
     getLocations(val) {
       this.markers = val;
+    },
+    hexagonDateRange(val) {
+      this.hexagonLayers = this.getHexagonLocations.filter(obj => obj.properties.construction_start_date <= val);
+    },
+    hexagonChecked(val) {
+      if (val === false) {
+        this.hexagonDateRange = 1997;
+      }
     }
   }
 }
@@ -228,32 +351,6 @@ export default {
 
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style>
-
-/*.marker-cluster-small {*/
-/*  background-color: #006d2c !important;*/
-/*  color: white !important;*/
-/*}*/
-/*.marker-cluster-small div {*/
-/*  background-color: #2ca25f !important;*/
-/*  color: white !important;*/
-/*}*/
-/*.marker-cluster-medium {*/
-/*  background-color: #b39800 !important;*/
-/*  color: white !important;*/
-/*}*/
-/*.marker-cluster-medium div {*/
-/*  background-color: #FFD700 !important;*/
-/*  color: black !important;*/
-/*}*/
-/*.marker-cluster-large {*/
-/*  background-color: #bd0026 !important;*/
-/*  color: white !important;*/
-/*}*/
-/*.marker-cluster-large div {*/
-/*  background-color: #e31a1c !important;*/
-/*  color: white !important;*/
-/*}*/
-
 
 .marker-cluster-small {
   background-color: #807bb7 !important;
@@ -280,7 +377,7 @@ export default {
   color: white !important;
 }
 
-.fedCheckbox {
+.controlText {
   padding-left: 10px;
 }
 

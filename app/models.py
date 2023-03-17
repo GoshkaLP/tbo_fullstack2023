@@ -40,6 +40,8 @@ class LocationsInfo(Base):
 
     obj_id = Column(Integer, primary_key=True)
     active = Column(Boolean)
+    name = Column(String)
+    name_en = Column(String)
     description = Column(String)
     description_long = Column(String)
     description_en = Column(String)
@@ -98,3 +100,13 @@ class FederalsGeometry(Base):
     federal_subject = Column(String)
     obj_count = Column(Integer)
     geometry = Column(Geometry)
+
+
+class FundingSportTypes(Base):
+    __tablename__ = 'FundingSportTypes'
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True)
+    sports_complex_type = Column(String)
+    funding_type = Column(String)
+    count = Column(Integer)
