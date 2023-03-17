@@ -20,7 +20,8 @@ export default new Vuex.Store({
         supervisory: []
       }
     },
-    fundingSportTypes: {}
+    fundingSportTypes: {},
+    constructionSportTypes: {}
   },
   getters: {
     getLocations(state) {
@@ -43,6 +44,9 @@ export default new Vuex.Store({
     },
     getFundingSportTypes(state) {
       return state.fundingSportTypes;
+    },
+    getConstructionSportTypes(state) {
+      return state.constructionSportTypes;
     }
   },
   mutations: {
@@ -68,6 +72,9 @@ export default new Vuex.Store({
     },
     setFundingSportTypes(state, payload) {
       state.fundingSportTypes = payload
+    },
+    setConstructionSportTypes(state, payload) {
+      state.constructionSportTypes = payload
     }
   },
   actions: {
@@ -96,6 +103,10 @@ export default new Vuex.Store({
     async fetchFundingSportTypes(state) {
       const response = await axios.get(url + '/api/fundingSportTypes')
       state.commit("setFundingSportTypes", response.data.data)
+    },
+    async fetchConstructionSportTypes(state) {
+      const response = await axios.get(url + '/api/constructionSportTypes')
+      state.commit("setConstructionSportTypes", response.data.data)
     }
 
   },

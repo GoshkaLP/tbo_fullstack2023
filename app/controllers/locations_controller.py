@@ -1,6 +1,14 @@
 from app.controllers.responses_controller import resp_ok
 from app.controllers.db_controller import db_get_federals, db_get_locations, db_get_location, \
-    db_get_federals_locations, db_get_hexagon_locations, db_get_funding_sport_types
+    db_get_federals_locations, db_get_hexagon_locations, db_get_funding_sport_types, db_get_construction_sport_types
+from collections import defaultdict
+
+
+funding = {
+    'federal_budget_funding': 'Федеральное финансирование',
+    'regional_budget_funding': 'Финансирование субъекта федерации',
+    'local_budget_funding': 'Финансирование МО'
+}
 
 
 def get_federal_subjects() -> dict:
@@ -38,12 +46,11 @@ def get_locations() -> dict:
         for row in res:
             resp.append({
                 'objId': row[0],
-                'name': row[1],
-                'address': row[2],
-                'federalSubject': row[3],
-                'fedId': row[4],
-                'longitude': row[5],
-                'latitude': row[6]
+                'address': row[1],
+                'federalSubject': row[2],
+                'fedId': row[3],
+                'longitude': row[4],
+                'latitude': row[5]
             })
     return resp_ok(resp)
 
@@ -67,10 +74,6 @@ def get_location(obj_id: int) -> dict:
                 'address': location_info.address,
                 'sportsComplexType': location_info.sports_complex_type,
                 'sportsTypes': location_info.sports_types,
-                'websiteUrl': location_info.website_url,
-                'workHoursWeekdays': location_info.work_hours_weekdays,
-                'saturdayWorkingHours': location_info.saturday_working_hours,
-                'sundayWorkingHours': location_info.sunday_working_hours
             },
             'spending': {
                 'objectActions': location_spending.object_actions,
@@ -91,31 +94,54 @@ def get_location(obj_id: int) -> dict:
                 'supervisoryAuthorityPhone': location_supervisory.supervisory_authority_phone,
                 'contactPhone': location_supervisory.contact_phone,
                 'email': location_supervisory.email,
-                'registeredInRegistry': location_supervisory.registered_in_registry
+                'registeredInRegistry': location_supervisory.registered_in_registry,
+                'websiteUrl': location_supervisory.website_url,
+                'workHoursWeekdays': location_supervisory.work_hours_weekdays,
+                'saturdayWorkingHours': location_supervisory.saturday_working_hours,
+                'sundayWorkingHours': location_supervisory.sunday_working_hours
             }
         })
     return resp_ok(resp)
 
 
-def get_funding_sports_type() -> dict:
+def get_funding_sport_types() -> dict:
     resp = {}
     res = db_get_funding_sport_types()
     if res:
-        series_dict = {}
-        categories = set()
+        data_dict = defaultdict(lambda: defaultdict(float))
         for row in res:
-            funding_type = row[1]
-            category = row[0]
-            categories.add(category)
-            if funding_type not in series_dict:
-                series_dict[funding_type] = [0] * len(categories)
-            index = list(categories).index(category)
-            series_dict[funding_type].extend([0] * (index - len(series_dict[funding_type]) + 1))
-            series_dict[funding_type][index] += row[2]
+            sports_complex_type, funding_type, count = row
+            data_dict[funding_type][sports_complex_type] += count
 
-        resp = {
-            'series': [{'name': funding_type, 'data': count_list} for funding_type, count_list in series_dict.items()],
-            'categories': list(categories)
-        }
+        categories = sorted(list(set([row[0] for row in res])))
+
+        series = []
+        for funding_type in data_dict:
+            data = [data_dict[funding_type][category] for category in categories]
+            series.append({'name': funding.get(funding_type), 'data': data})
+
+        resp = {'series': series, 'categories': categories}
+
+    return resp_ok(resp)
+
+
+def get_construction_sport_types() -> dict:
+    resp = {}
+    res = db_get_construction_sport_types()
+    if res:
+        res = sorted(res, key=lambda x: (x.funding_type, x.construction_start_date))
+
+        series = []
+        categories = sorted(list(set([row.construction_start_date for row in res])))
+
+        for budget_funding in set([row.funding_type for row in res]):
+            item_series = {
+                'name': funding.get(budget_funding),
+                'data': [row.count for row in res if row.funding_type == budget_funding]
+            }
+
+            series.append(item_series)
+
+        resp = {'series': series, 'categories': categories}
 
     return resp_ok(resp)

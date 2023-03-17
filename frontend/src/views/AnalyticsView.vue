@@ -1,9 +1,14 @@
 <template>
   <div>
     <div id="chart">
-      <b-card>
-        <apexchart type="bar" height="350" :options="getChartOptions" :series="getSeries"></apexchart>
+      <b-card title="Распределение средств по типам спортивных комплексов" class="chartCard">
+        <apexchart type="bar" height="350" :options="getFundingChartOptions" :series="getFundingSeries"></apexchart>
       </b-card>
+
+      <b-card title="Распределение выделенного бюджета по годам" class="chartCard">
+        <apexchart type="line" height="350" :options="getConstructionChartOptions" :series="getConstructionSeries"></apexchart>
+      </b-card>
+
     </div>
   </div>
 </template>
@@ -22,11 +27,11 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['fetchFundingSportTypes']),
+    ...mapActions(['fetchFundingSportTypes', 'fetchConstructionSportTypes']),
   },
   computed: {
-    ...mapGetters(['getFundingSportTypes']),
-    getChartOptions() {
+    ...mapGetters(['getFundingSportTypes', 'getConstructionSportTypes']),
+    getFundingChartOptions() {
       return {
         chart: {
           type: 'bar',
@@ -80,17 +85,49 @@ export default {
         },
       }
     },
-    getSeries() {
+    getConstructionChartOptions() {
+      return {
+        chart: {
+          height: 500,
+          type: 'line',
+          zoom: {
+            enabled: false
+          }
+        },
+        dataLabels: {
+          enabled: false
+        },
+        stroke: {
+          curve: 'straight'
+        },
+        grid: {
+          row: {
+            colors: ['#f3f3f3', 'transparent'],
+            opacity: 0.5
+          },
+        },
+        xaxis: {
+          categories: this.getConstructionSportTypes.categories
+        }
+      }
+    },
+    getFundingSeries() {
       return this.getFundingSportTypes.series;
+    },
+    getConstructionSeries() {
+      return this.getConstructionSportTypes.series;
     }
   },
   created() {
     this.fetchFundingSportTypes();
+    this.fetchConstructionSportTypes()
   }
 
 }
 </script>
 
 <style scoped>
-
+.chartCard {
+  margin: 50px;
+}
 </style>

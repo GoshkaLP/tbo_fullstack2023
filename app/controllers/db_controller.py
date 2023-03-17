@@ -9,7 +9,7 @@ import os
 from sqlalchemy import create_engine
 
 from app.models import Federals, LocationsFederals, LocationsGeometry, LocationsInfo, LocationsSpending, \
-    LocationsSupervisory, FundingSportTypes
+    LocationsSupervisory, FundingSportTypes, ConstructionSportTypes
 
 # Для отладки
 from dotenv import load_dotenv
@@ -56,7 +56,7 @@ def db_get_federals() -> list:
 
 def db_get_locations() -> list:
     with session_scope() as session:
-        res = session.query(LocationsGeometry.obj_id, LocationsGeometry.name, LocationsGeometry.address,
+        res = session.query(LocationsGeometry.obj_id, LocationsGeometry.address,
                             LocationsGeometry.federal_subject, LocationsGeometry.fed_id, LocationsGeometry.geometry.ST_X(),
                             LocationsGeometry.geometry.ST_Y()).all()
         return res
@@ -68,7 +68,6 @@ def db_get_location(obj_id: int):
             join(LocationsSpending, LocationsInfo.obj_id == LocationsSpending.obj_id).\
             join(LocationsSupervisory, LocationsInfo.obj_id == LocationsSupervisory.obj_id).\
             filter(LocationsInfo.obj_id == obj_id).first()
-        # res = session.query(LocationsInfo).filter(LocationsInfo.obj_id == obj_id).first()
         return res
 
 
@@ -102,3 +101,8 @@ def db_get_funding_sport_types() -> list:
                                                                         FundingSportTypes.funding_type).all()
         return res
 
+
+def db_get_construction_sport_types() -> list:
+    with session_scope() as session:
+        res = session.query(ConstructionSportTypes).all()
+        return res

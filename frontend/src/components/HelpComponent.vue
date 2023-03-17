@@ -34,7 +34,7 @@
             <li>
               <article class="feature">
                 <div class="feature__first-column">
-                  <img src="../assets/feature-image-template.png" alt="" class="feature__illustration">
+                  <img src="../assets/feature-image-1.png" alt="" class="feature__illustration">
                 </div>
                 <div class="feature__second-column">
                   <p class="feature__count">1</p>
@@ -43,7 +43,7 @@
                     Каждый объект – точка на карте. При уменьшении масштаба объекты
                     объединяются в группы по местоположению. При нажатии на объект
                     можно получить подробный отчет о нем: общую информацию, детализацию
-                    финансирования и контакты куратора.
+                    финансирования и контакты.
                   </p>
                 </div>
               </article>
@@ -51,7 +51,7 @@
             <li>
               <article class="feature">
                 <div class="feature__first-column">
-                  <img src="../assets/feature-image-template.png" alt="" class="feature__illustration">
+                  <img src="../assets/feature-image-2.png" alt="" class="feature__illustration">
                 </div>
                 <div class="feature__second-column">
                   <p class="feature__count">2</p>
@@ -68,7 +68,7 @@
             <li>
               <article class="feature">
                 <div class="feature__first-column">
-                  <img src="../assets/feature-image-template.png" alt="" class="feature__illustration">
+                  <img src="../assets/feature-image-3.png" alt="" class="feature__illustration">
                 </div>
                 <div class="feature__second-column">
                   <p class="feature__count">3</p>
@@ -84,7 +84,7 @@
             <li>
               <article class="feature">
                 <div class="feature__first-column">
-                  <img src="../assets/feature-image-template.png" alt="" class="feature__illustration">
+                  <img src="../assets/feature-image-4.png" alt="" class="feature__illustration">
                 </div>
                 <div class="feature__second-column">
                   <p class="feature__count">4</p>
@@ -275,6 +275,7 @@ export default {
 }
 
 .feature__illustration {
+  max-width: 580px;
   aspect-ratio: 290/159;
   border: 2px solid black;
   box-sizing: border-box;

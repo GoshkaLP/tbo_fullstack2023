@@ -3,51 +3,52 @@
     <l-map style="height: calc(100vh - 56px)" :zoom="mapZoom" :center="mapCenter" :options="{attributionControl: false}">
       <l-control class="mapControl">
         <b-card sub-title="Управление картой">
+          <b-list-group flush>
+            <b-list-group-item></b-list-group-item>
+            <b-list-group-item>
 
-          <b-form-group
-              label-cols-sm="8"
-              label-align-sm="left"
-              label="Слой отображения субъектов РФ"
-              label-for="fedCheckbox">
-            <b-form-checkbox
-                id="fedCheckbox"
-                v-model="fedChecked">
-            </b-form-checkbox>
-          </b-form-group>
+                <b-form-checkbox
+                    style="font-size: 16px"
+                    id="fedCheckbox"
+                    v-model="fedChecked">
+                  Аналитика регионов
+                </b-form-checkbox>
+              <br>
+              <p>Визуализация распределения спортивных объектов по субъектам РФ</p>
+              <multiselect
+                  :disabled="hexagonChecked"
+                  v-model="fedSelected"
+                  :options="getFederalsInfo"
+                  track-by="fedName"
+                  label="fedName"
+                  :close-on-select="false"
+                  :multiple="true"
+                  placeholder="Выберите субъект"
+                  selectLabel="Нажмите, чтобы выбрать"
+                  deselectLabel="Нажмите, чтобы убрать"
+                  selectedLabel="Выбрано">
+              </multiselect>
+            </b-list-group-item>
 
-          <multiselect
-              :disabled="hexagonChecked"
-              v-model="fedSelected"
-              :options="getFederalsInfo"
-              track-by="fedName"
-              label="fedName"
-              :close-on-select="false"
-              :multiple="true"
-              placeholder="Выберите субъект"
-              selectLabel="Нажмите, чтобы выбрать"
-              deselectLabel="Нажмите, чтобы убрать"
-              selectedLabel="Выбрано">
-          </multiselect>
+            <b-list-group-item>
 
-          <b-form-group
-              label-cols-sm="8"
-              label-align-sm="left"
-              label="Слой отображения строительства объектов"
-              label-for="hexagonCheckbox">
-            <b-form-checkbox
-                id="hexagonCheckbox"
-                v-model="hexagonChecked">
-            </b-form-checkbox>
-          </b-form-group>
-
-
-          <b-form-group
-              label-cols-sm="4"
-              label-align-sm="left"
-              label="Текст про ползунок"
-              label-for="hexagonYear">
-            <b-form-input id="hexagonYear" type="range" min="1997" max="2015" v-model="hexagonDateRange" :disabled="!hexagonChecked"></b-form-input>
-          </b-form-group>
+              <b-form-checkbox
+                  style="font-size: 16px"
+                  id="hexagonCheckbox"
+                  v-model="hexagonChecked">
+                Временная линия
+              </b-form-checkbox>
+              <br>
+              <p>Хронология появления новых спортивных объъектов в России</p>
+              <b-form-group
+                  label-cols="1"
+                  label-align="left"
+                  label="Год"
+                  label-for="hexagonYear">
+                <b-form-input id="hexagonYear" type="range" min="1997" max="2015" v-model="hexagonDateRange" :disabled="!hexagonChecked"></b-form-input>
+              </b-form-group>
+            </b-list-group-item>
+          </b-list-group>
 
         </b-card>
       </l-control>
@@ -55,8 +56,8 @@
       <l-control
           v-show="fedChecked"
           position="bottomright">
-        <b-card sub-title="Легенда субъектов">
-          <p>Количество объектов</p>
+        <b-card sub-title="Аналитика регионов">
+          <p>Количество сопрт-объектов</p>
           <MapLegendElement color="#636363">>20</MapLegendElement>
           <MapLegendElement color="#969696">11-20</MapLegendElement>
           <MapLegendElement color="#BDBDBD">6-10</MapLegendElement>
@@ -96,14 +97,6 @@
                 <b-card-body sub-title="Типы спорта">
                   <p>{{getLocationInfo.info.sportsTypes}}</p>
                 </b-card-body>
-                <b-card-body sub-title="Вебсайт">
-                  <p>{{getLocationInfo.info.websiteUrl}}</p>
-                </b-card-body>
-                <b-card-body sub-title="Время работы">
-                  <p>{{getLocationInfo.info.workHoursWeekdays}}</p>
-                  <p>{{getLocationInfo.info.saturdayWorkingHours}}</p>
-                  <p>{{getLocationInfo.info.sundayWorkingHours}}</p>
-                </b-card-body>
               </b-tab>
               <b-tab title="Траты">
                 <b-card-body sub-title="Действия с объектом">
@@ -119,7 +112,7 @@
                 </b-card-body>
 
               </b-tab>
-              <b-tab title="Управляющий">
+              <b-tab title="Контакты">
                 <b-card-body sub-title="Курирующий орган">
                   <p>{{getLocationInfo.supervisory.supervisoryAuthority}}</p>
                 </b-card-body>
@@ -132,6 +125,14 @@
                 <b-card-body sub-title="Электронная почта объекта">
                   <p>{{getLocationInfo.supervisory.email}}</p>
                 </b-card-body>
+                <b-card-body sub-title="Вебсайт">
+                  <p>{{getLocationInfo.supervisory.websiteUrl}}</p>
+                </b-card-body>
+                <b-card-body sub-title="Время работы">
+                  <p>{{getLocationInfo.supervisory.workHoursWeekdays}}</p>
+                  <p>{{getLocationInfo.supervisory.saturdayWorkingHours}}</p>
+                  <p>{{getLocationInfo.supervisory.sundayWorkingHours}}</p>
+                </b-card-body>
               </b-tab>
             </b-tabs>
           </div>
@@ -140,7 +141,7 @@
 
       <l-control
       position="bottomleft">
-        <b-card :sub-title="`Выбранный год: ${hexagonDateRange}`"
+        <b-card :sub-title="`Временная линия: ${hexagonDateRange} год`"
                 v-show="hexagonChecked">
           <MapLegendElement color="#F9F0FB">футбольное поле</MapLegendElement>
           <MapLegendElement color="#F0E1F6">многофункциональный спортивный комплекс</MapLegendElement>
@@ -398,5 +399,8 @@ export default {
   overflow-y: scroll;
 }
 
+.card-subtitle {
+  color: black !important;
+}
 
 </style>

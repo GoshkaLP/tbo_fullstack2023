@@ -27,7 +27,6 @@ class LocationsGeometry(Base):
     __table_args__ = {'extend_existing': True}
 
     obj_id = Column(Integer, primary_key=True)
-    name = Column(String)
     federal_subject = Column(String)
     address = Column(String)
     fed_id = Column(Integer)
@@ -55,10 +54,6 @@ class LocationsInfo(Base):
     address_en = Column(String)
     sports_complex_type = Column(String)
     sports_types = Column(String)
-    website_url = Column(String)
-    work_hours_weekdays = Column(String)
-    saturday_working_hours = Column(String)
-    sunday_working_hours = Column(String)
 
 
 class LocationsSpending(Base):
@@ -90,6 +85,10 @@ class LocationsSupervisory(Base):
     contact_phone = Column(String)
     email = Column(String)
     registered_in_registry = Column(Boolean)
+    website_url = Column(String)
+    work_hours_weekdays = Column(String)
+    saturday_working_hours = Column(String)
+    sunday_working_hours = Column(String)
 
 
 class FederalsGeometry(Base):
@@ -108,5 +107,15 @@ class FundingSportTypes(Base):
 
     id = Column(Integer, primary_key=True)
     sports_complex_type = Column(String)
+    funding_type = Column(String)
+    count = Column(Integer)
+
+
+class ConstructionSportTypes(Base):
+    __tablename__ = 'ConstructionSportTypes'
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True)
+    construction_start_date = Column(String)
     funding_type = Column(String)
     count = Column(Integer)

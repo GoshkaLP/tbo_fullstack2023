@@ -9,7 +9,7 @@
 
         <b-navbar-nav>
           <b-nav-item :to="{path: '/'}">Карта</b-nav-item>
-          <b-nav-item :to="{path: '/analytics'}">Аналитика</b-nav-item>
+          <b-nav-item :to="{path: '/analytics'}">Сводка</b-nav-item>
 
         </b-navbar-nav>
 
@@ -19,7 +19,7 @@
           </b-nav-item>
         </b-navbar-nav>
 
-        <b-modal ref="helpModal" scrollable hide-footer no-body>
+        <b-modal ref="helpModal" class="helpModal" scrollable hide-footer no-body>
           <HelpComponent></HelpComponent>
         </b-modal>
 
@@ -41,6 +41,9 @@ export default {
     showHelpModal() {
       this.$refs['helpModal'].show();
     }
+  },
+  mounted() {
+    this.showHelpModal()
   }
 
 

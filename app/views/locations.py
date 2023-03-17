@@ -1,7 +1,8 @@
 from flask import Blueprint, request
 
 from app.controllers.locations_controller import get_federal_subjects, get_locations, get_location, \
-    get_federal_subject_locations, get_hexagons_locations, get_funding_sports_type
+    get_federal_subject_locations, get_hexagons_locations, get_funding_sport_types, \
+    get_construction_sport_types
 
 locations = Blueprint('locations', __name__)
 
@@ -33,4 +34,9 @@ def api_get_locations_info(obj_id: int):
 
 @locations.route('/api/fundingSportTypes', methods=['GET'])
 def api_get_funding_sport_types():
-    return get_funding_sports_type()
+    return get_funding_sport_types()
+
+
+@locations.route('/api/constructionSportTypes', methods=['GET'])
+def api_get_construction_sport_types():
+    return get_construction_sport_types()
