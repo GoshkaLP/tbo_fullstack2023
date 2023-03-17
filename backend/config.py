@@ -11,10 +11,9 @@ class Config:
     SQLALCHEMY_DATABASE_URI = 'postgresql://{user}:{password}@{host}:5432/{db}'.format(
         user=getenv('POSTGRES_USER'),
         password=getenv('POSTGRES_PASSWORD'),
-        host=getenv('HOST'),
+        host=getenv('HOSTNAME'),
         db=getenv('POSTGRES_DB')
     )
-    print(SQLALCHEMY_DATABASE_URI)
 
 
 class ProdConfig(Config):

@@ -2,6 +2,21 @@ version: "3.8"
 
 services:
 
+  app_tbo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app_tbo
+    restart: unless-stopped
+    env_file:
+      - .env
+    expose:
+      - 8082
+    depends_on:
+      - db_tbo
+    networks:
+      - tbo
+
   db_tbo:
     image: postgis/postgis
     container_name: db_tbo

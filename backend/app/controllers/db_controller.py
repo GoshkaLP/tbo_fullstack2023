@@ -1,8 +1,6 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import func, desc, literal_column
 
-from shapely import wkb
-
 from contextlib import contextmanager
 
 import os

@@ -2,7 +2,7 @@ from app import create_app
 
 from config import DevConfig, ProdConfig
 
-app = create_app(DevConfig)
+app = create_app(ProdConfig)
 
 if app is None:
     print('[Error]: No config provided')

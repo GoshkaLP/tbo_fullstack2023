@@ -4,7 +4,7 @@ import axios from "axios";
 
 Vue.use(Vuex)
 
-let url = "http://localhost:8082"
+let url = "https://tbo.gmrybkin.com"
 
 export default new Vuex.Store({
   state: {
